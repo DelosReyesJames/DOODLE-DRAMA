@@ -49,33 +49,38 @@
 		}
 	}
 
-	function getCoordinates(e: TouchEvent | MouseEvent) {
+	function getCoordinates(e: TouchEvent | MouseEvent | PointerEvent) {
 		const rect = canvas.getBoundingClientRect();
-		const dpr = window.devicePixelRatio || 1;
 
 		if (e instanceof TouchEvent) {
 			return {
-				x: (e.touches[0].clientX - rect.left) / dpr,
-				y: (e.touches[0].clientY - rect.top) / dpr
+				x: e.touches[0].clientX - rect.left,
+				y: e.touches[0].clientY - rect.top
 			};
 		}
 
 		return {
-			x: (e.clientX - rect.left) / dpr,
-			y: (e.clientY - rect.top) / dpr
+			x: ('clientX' in e ? e.clientX : 0) - rect.left,
+			y: ('clientY' in e ? e.clientY : 0) - rect.top
 		};
 	}
 
 	function startDrawing(e: TouchEvent | MouseEvent) {
 		isDrawing = true;
 		const { x, y } = getCoordinates(e);
-		
+
 		if (isEraser) {
 			ctx.clearRect(x - brushSize / 2, y - brushSize / 2, brushSize, brushSize);
 		} else {
 			if (brushType === 'marker' || brushType === 'crayon') {
 				ctx.beginPath();
 				ctx.moveTo(x, y);
+				ctx.lineCap = 'round';
+				ctx.lineJoin = 'round';
+				ctx.strokeStyle = brushColor;
+				ctx.lineWidth = brushType === 'crayon' ? brushSize + 2 : brushSize;
+				ctx.lineTo(x, y);
+				ctx.stroke();
 			} else {
 				drawBrushShape(x, y);
 			}
@@ -95,8 +100,8 @@
 	function drawCrayon(x: number, y: number) {
 		ctx.strokeStyle = brushColor;
 		ctx.lineWidth = brushSize + 2;
-		ctx.lineCap = 'butt';
-		ctx.lineJoin = 'miter';
+		ctx.lineCap = 'round';
+		ctx.lineJoin = 'round';
 		ctx.lineTo(x, y);
 		ctx.stroke();
 	}
@@ -198,12 +203,12 @@
 		<!-- svelte-ignore element_invalid_self_closing_tag -->
 		<canvas
 			bind:this={canvas}
-			on:touchstart={startDrawing}
-			on:touchmove={draw}
-			on:mousedown={startDrawing}
-			on:mousemove={draw}
+			on:pointerdown={startDrawing}
+			on:pointermove={draw}
+			on:pointerup={stopDrawing}
+			on:pointerleave={stopDrawing}
 			class="doodle-canvas"
-		/>
+		></canvas>
 	</div>
 
 	<div class="controls">

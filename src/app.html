@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Doodle Drama Canvas</title>
+	%sveltekit.head%
+</head>
+<body data-sveltekit-preload-data="hover">
+	<div style="display: contents">%sveltekit.body%</div>
+</body>
+</html>
+  <label>Brush Size: <input type="range" min="1" max="20" bind:value={brushSize} /></label>
+  <button on:click={clearCanvas}>Clear</button>
+</div>
+
+<canvas
+  bind:this={canvas}
+  width="600"
+  height="400"
+  on:mousedown={startDrawing}
+  on:mouseup={stopDrawing}
+  on:mousemove={draw}
+  on:mouseleave={stopDrawing}
+  on:touchstart|preventDefault={startDrawing}
+  on:touchend|preventDefault={stopDrawing}
+  on:touchmove|preventDefault={draw}
+>

@@ -86,6 +86,7 @@
 			}
 		}
 		e.preventDefault();
+		
 	}
 
 	function drawMarker(x: number, y: number) {
@@ -192,101 +193,95 @@
 
 <svelte:window on:touchend={stopDrawing} on:mouseup={stopDrawing} />
 
-<div class="container">
-	<div class="header">
-		<h1>🎨 DOODLE DRAMA 🎪</h1>
-		<p>Create Your Masterpiece!</p>
-		<div class="stars">⭐ ✨ 🌟 ✨ ⭐</div>
+<div class="page">
+	<div class="paper-grid"></div>
+
+	<div class="top-sheet">
+		<div class="top-icons top-left">
+			<button class="icon-circle">🇬🇧</button>
+		</div>
+		<div class="top-icons top-right">
+			<button class="icon-circle">✕</button>
+		</div>
+
+		
+
+		<div class="card-panel">
+			<div class="play-circle">▶</div>
+			<div class="card-title">Drama DOODLES</div>
+		</div>
+
+		
 	</div>
 
-	<div class="canvas-wrapper">
-		<!-- svelte-ignore element_invalid_self_closing_tag -->
-		<canvas
-			bind:this={canvas}
-			on:pointerdown={startDrawing}
-			on:pointermove={draw}
-			on:pointerup={stopDrawing}
-			on:pointerleave={stopDrawing}
-			class="doodle-canvas"
-		></canvas>
-	</div>
+	<div class="board">
+		<div class="canvas-shell">
+			<!-- svelte-ignore element_invalid_self_closing_tag -->
+			<canvas
+				bind:this={canvas}
+				on:pointerdown={startDrawing}
+				on:pointermove={draw}
+				on:pointerup={stopDrawing}
+				on:pointerleave={stopDrawing}
+				class="doodle-canvas"
+			></canvas>
+		</div>
 
-	<div class="controls">
-		<!-- Colors Section -->
-		<div class="control-section">
-			<h3>🌈 Pick Your Color:</h3>
-			<div class="color-palette">
-				{#each colors as color}
-					<button
-						class="color-btn"
-						style="background-color: {color.hex}; border: {brushColor === color.hex && !isEraser
-							? '4px solid #333'
-							: '3px solid rgba(0,0,0,0.2)'}"
-						on:click={() => {
-							brushColor = color.hex;
-							isEraser = false;
-						}}
-						title={color.name}
-					>
-					</button>
-				{/each}
+		<div class="controls-panel">
+			<div class="control-card">
+				<div class="card-header">Sketch Tools</div>
+				<div class="section">
+					<div class="section-label">Color</div>
+					<div class="color-palette">
+						{#each colors as color}
+							<button
+								class="color-btn"
+								style="background-color: {color.hex}; border: {brushColor === color.hex && !isEraser ? '4px solid #333' : '3px solid rgba(0,0,0,0.2)'}"
+								on:click={() => {
+								brushColor = color.hex;
+								isEraser = false;
+							}}
+								title={color.name}
+							></button>
+						{/each}
+					</div>
+				</div>
+
+				<div class="section row">
+					<label>Brush</label>
+					<div class="brush-buttons">
+						{#each brushTypes as brush}
+							<button
+								class="brush-btn {brushType === brush.id && !isEraser ? 'active' : ''}"
+								on:click={() => setBrush(brush.id)}
+								title={brush.name}
+							>
+								<span class="brush-icon">{brush.label}</span>
+								<span class="brush-name">{brush.name}</span>
+							</button>
+						{/each}
+					</div>
+				</div>
+
+				<div class="section">
+					<label>Size <strong>{brushSize}px</strong></label>
+					<input type="range" min="3" max="40" bind:value={brushSize} class="size-slider" />
+				</div>
 			</div>
-		</div>
 
-		<!-- Brush Types Section -->
-		<div class="control-section">
-			<h3>✏️ Choose Your Tool:</h3>
-			<div class="brush-buttons">
-				{#each brushTypes as brush}
-					<button
-						class="brush-btn {brushType === brush.id && !isEraser ? 'active' : ''}"
-						on:click={() => setBrush(brush.id)}
-						title={brush.name}
-					>
-						<span class="brush-icon">{brush.label}</span>
-						<span class="brush-name">{brush.name}</span>
-					</button>
-				{/each}
-			</div>
-		</div>
+			<div class="control-card small-card">
+				<div class="card-header">Extras</div>
+				<div class="section stickers-row">
+					{#each stickers as sticker}
+						<button class="sticker-btn" on:click={() => addSticker(sticker)}>{sticker}</button>
+					{/each}
+				</div>
 
-		<!-- Size Control Section -->
-		<div class="control-section">
-			<h3>📏 Size: <strong>{brushSize}px</strong></h3>
-			<input type="range" min="3" max="40" bind:value={brushSize} class="size-slider" />
-		</div>
-
-		<!-- Stickers Section -->
-		<div class="control-section">
-			<h3>✨ Fun Stickers:</h3>
-			<div class="stickers-grid">
-				{#each stickers as sticker}
-					<button
-						class="sticker-btn"
-						on:click={() => addSticker(sticker)}
-					>
-						{sticker}
-					</button>
-				{/each}
-			</div>
-		</div>
-
-		<!-- Tools Section -->
-		<div class="control-section">
-			<h3>🛠️ Tools:</h3>
-			<div class="tool-buttons">
-				<button
-					class="tool-btn eraser-btn {isEraser ? 'active' : ''}"
-					on:click={setEraser}
-				>
-					🗑️ Eraser
-				</button>
-				<button class="tool-btn clear-btn" on:click={clearCanvas}>
-					🔄 Clear
-				</button>
-				<button class="tool-btn download-btn" on:click={downloadDrawing}>
-					💾 Save
-				</button>
+				<div class="section tool-row">
+					<button class="tool-btn eraser-btn {isEraser ? 'active' : ''}" on:click={setEraser}>🗑️</button>
+					<button class="tool-btn clear-btn" on:click={clearCanvas}>🔄</button>
+					<button class="tool-btn download-btn" on:click={downloadDrawing}>💾</button>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -296,97 +291,242 @@
 	:global(body) {
 		margin: 0;
 		padding: 0;
-		font-family: 'Comic Sans MS', 'Trebuchet MS', cursive, sans-serif;
-		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+		font-family: 'Patrick Hand', 'Comic Sans MS', cursive, sans-serif;
+		background: #f2e7c9;
+		color: #2f2a25;
 		touch-action: none;
 	}
 
-	.container {
-		display: flex;
-		flex-direction: column;
-		height: 100vh;
-		max-width: 100%;
-	}
-
-	.header {
-		background: linear-gradient(135deg, #FF1493, #9D4EDD);
-		color: white;
-		padding: 0.75rem 1rem;
-		text-align: center;
-		box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-		border-bottom: 5px dashed white;
-	}
-
-	.header h1 {
-		margin: 0;
-		font-size: 1.8rem;
-		font-weight: bold;
-		text-shadow: 3px 3px 0px rgba(0, 0, 0, 0.3);
-		letter-spacing: 2px;
-		animation: bounce 1s ease-in-out infinite;
-	}
-
-	.header p {
-		margin: 0.25rem 0 0 0;
-		font-size: 0.9rem;
-		opacity: 0.95;
-		text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.2);
-	}
-
-	.stars {
-		margin-top: 0.25rem;
-		font-size: 1.2rem;
-		letter-spacing: 0.2rem;
-		animation: twinkle 1.5s ease-in-out infinite;
-	}
-
-	.canvas-wrapper {
-		flex: 1;
+	.page {
+		min-height: 100vh;
+		padding: 1.5rem;
+		position: relative;
 		overflow: hidden;
-		background: linear-gradient(to bottom, #ffffff, #f0f0f0);
-		box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.1);
 	}
 
-	canvas {
-		display: block;
+	.paper-grid {
+		position: absolute;
+		inset: 0;
+		background-image:
+			linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px),
+			linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px),
+			linear-gradient(0deg, rgba(255,255,255,0.45), rgba(255,255,255,0.45));
+		background-size: 40px 40px, 40px 40px, 100% 100%;
+		background-position: 0 0, 0 0, 0 0;
+		pointer-events: none;
+		opacity: 0.8;
+	}
+
+	.top-sheet {
+		position: relative;
+		max-width: 960px;
+		margin: 0 auto 1.5rem;
+		background: #fffdf5;
+		border: 4px solid #2f2a25;
+		border-radius: 24px;
+		box-shadow: 12px 12px 0 rgba(0,0,0,0.12);
+		padding: 1rem;
+		overflow: hidden;
+	}
+
+	.top-sheet::before {
+		content: '';
+		position: absolute;
+		top: 1rem;
+		left: 1rem;
+		width: 44px;
+		height: 44px;
+		border-radius: 50%;
+		background: rgba(255, 249, 205, 0.9);
+		border: 3px solid #2f2a25;
+		box-shadow: 0 0 0 6px rgba(255,255,255,0.8);
+		pointer-events: none;
+	}
+
+	.top-icons {
+		display: flex;
+		gap: 0.75rem;
+		position: absolute;
+		top: 1rem;
+	}
+
+	.top-left { left: 1rem; }
+	.top-right { right: 1rem; }
+
+	.icon-circle {
+		width: 44px;
+		height: 44px;
+		border-radius: 50%;
+		background: #fff;
+		border: 3px solid #2f2a25;
+		display: grid;
+		place-items: center;
+		font-size: 1.1rem;
+		cursor: pointer;
+		box-shadow: 4px 4px 0 rgba(0,0,0,0.12);
+	}
+
+	.level-banner {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		margin: 0 auto 1rem;
+		padding: 0.5rem 1.25rem;
+		background: #97c16b;
+		color: #2f2a25;
+		font-weight: 700;
+		font-size: 1rem;
+		border-radius: 999px;
+		box-shadow: 4px 4px 0 rgba(0,0,0,0.12);
+		text-transform: uppercase;
+		letter-spacing: 0.15em;
+		position: relative;
+	}
+
+	.card-panel {
+		display: grid;
+		place-items: center;
+		padding: 2rem 1rem;
+		margin: 0 auto;
+		max-width: 420px;
+		background: #fff;
+		border: 4px dashed #2f2a25;
+		border-radius: 24px;
+		box-shadow: 10px 10px 0 rgba(0,0,0,0.1);
+		position: relative;
+	}
+
+	.play-circle {
+		width: 110px;
+		height: 110px;
+		border-radius: 50%;
+		background: #ffd455;
+		border: 4px solid #2f2a25;
+		display: grid;
+		place-items: center;
+		font-size: 2.5rem;
+		color: #2f2a25;
+		box-shadow: inset 0 6px 0 rgba(0,0,0,0.08);
+	}
+
+	.card-title {
+		margin-top: 1rem;
+		font-size: 1.3rem;
+		font-weight: 800;
+		letter-spacing: 0.05em;
+		text-transform: uppercase;
+		color: #2f2a25;
+	}
+
+	.bottom-icons {
+		display: flex;
+		justify-content: center;
+		gap: 0.75rem;
+		margin-top: 1rem;
+	}
+
+	.board {
+		display: grid;
+		grid-template-columns: 2fr 1fr;
+		gap: 1.5rem;
+		max-width: 960px;
+		margin: 0 auto;
+	}
+
+	.canvas-shell {
+		position: relative;
+		background: #fff;
+		border: 4px solid #2f2a25;
+		border-radius: 24px;
+		box-shadow: 12px 12px 0 rgba(0,0,0,0.1);
+		overflow: hidden;
+		height: min(68vh, 560px);
+	}
+
+	.doodle-canvas {
 		width: 100%;
 		height: 100%;
-		cursor: crosshair;
-		background: white;
+		background: #fff;
 	}
 
-	.controls {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 1rem;
-		padding: 0.75rem;
-		background: linear-gradient(to right, #00D9FF, #00FF00);
-		align-items: flex-start;
-		justify-content: center;
-		overflow-y: auto;
-		box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.2);
-		max-height: 200px;
-	}
-
-	.control-section {
+	.controls-panel {
 		display: flex;
 		flex-direction: column;
-		gap: 0.5rem;
-		align-items: flex-start;
+		gap: 1rem;
 	}
 
-	.control-section h3 {
-		margin: 0;
-		font-size: 0.9rem;
-		font-weight: bold;
-		color: white;
-		text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+	.control-card {
+		background: #fff;
+		border: 3px solid #2f2a25;
+		border-radius: 24px;
+		padding: 1rem;
+		box-shadow: 8px 8px 0 rgba(0,0,0,0.08);
+	}
+
+	.small-card {
+		min-height: 240px;
+	}
+
+	.card-header {
+		font-size: 1rem;
+		font-weight: 800;
+		margin-bottom: 0.75rem;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+	}
+
+	.section {
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+		margin-bottom: 0.75rem;
+	}
+
+	.section.row {
+		gap: 0.75rem;
+	}
+
+	.section label {
+		font-size: 0.95rem;
+		font-weight: 700;
+	}
+
+	.brush-buttons {
+		flex-wrap: wrap;
+	}
+
+	.brush-btn {
+		min-width: 72px;
+		padding: 0.65rem 0.65rem;
+		border-radius: 16px;
+	}
+
+	.brush-btn.active {
+		background: #ffeb9a;
+		color: #2f2a25;
+	}
+
+	.stickers-row {
+		display: grid;
+		grid-template-columns: repeat(5, minmax(0, 1fr));
+		gap: 0.5rem;
+	}
+
+	.tool-row {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+	}
+
+	.tool-btn {
+		min-width: 72px;
+		padding: 0.75rem 0.9rem;
+		border-radius: 18px;
+		font-size: 0.95rem;
 	}
 
 	.color-palette {
-		display: flex;
-		gap: 0.4rem;
-		flex-wrap: wrap;
+		justify-content: flex-start;
 	}
 
 	.color-btn {
@@ -396,7 +536,7 @@
 		cursor: pointer;
 		transition: transform 0.2s, box-shadow 0.2s;
 		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-		border: 3px solid rgba(0, 0, 0, 0.2);
+		border: 3px solid rgba(0,0,0,0.2);
 	}
 
 	.color-btn:hover {
@@ -408,43 +548,6 @@
 		transform: scale(0.9);
 	}
 
-	.brush-buttons {
-		display: flex;
-		gap: 0.5rem;
-		flex-wrap: wrap;
-	}
-
-	.brush-btn {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		gap: 0.2rem;
-		padding: 0.5rem;
-		background-color: white;
-		border: 3px solid #333;
-		border-radius: 12px;
-		cursor: pointer;
-		font-size: 0.75rem;
-		font-weight: bold;
-		transition: all 0.2s;
-		min-width: 60px;
-		box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-	}
-
-	.brush-btn:hover {
-		background-color: #FFFD38;
-		transform: translateY(-2px);
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-	}
-
-	.brush-btn.active {
-		background-color: #FF1493;
-		color: white;
-		border-color: #9D4EDD;
-		box-shadow: 0 0 20px rgba(255, 20, 147, 0.7);
-	}
-
 	.brush-icon {
 		font-size: 1.2rem;
 	}
@@ -452,12 +555,6 @@
 	.brush-name {
 		font-size: 0.65rem;
 		text-transform: capitalize;
-	}
-
-	.stickers-grid {
-		display: grid;
-		grid-template-columns: repeat(5, 1fr);
-		gap: 0.3rem;
 	}
 
 	.sticker-btn {
@@ -481,16 +578,10 @@
 	}
 
 	.size-slider {
-		width: 200px;
+		width: 100%;
 		height: 8px;
 		cursor: pointer;
 		accent-color: #FF6B6B;
-	}
-
-	.tool-buttons {
-		display: flex;
-		gap: 0.5rem;
-		flex-wrap: wrap;
 	}
 
 	.tool-btn {
@@ -541,104 +632,41 @@
 		background: linear-gradient(135deg, #4d96ff, #6bcb77);
 	}
 
-	@media (max-width: 768px) {
-		.header h1 {
-			font-size: 1.3rem;
+	@media (max-width: 900px) {
+		.board {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	@media (max-width: 640px) {
+		.page {
+			padding: 1rem;
 		}
 
-		.header p {
-			font-size: 0.8rem;
+		.top-sheet {
+			padding: 0.85rem;
 		}
 
-		.stars {
+		.icon-circle {
+			width: 38px;
+			height: 38px;
 			font-size: 1rem;
 		}
 
-		.controls {
-			gap: 0.75rem;
-			padding: 0.6rem;
+		.card-panel {
+			padding: 1.5rem 1rem;
 		}
 
-		.control-section {
-			width: 100%;
+		.board {
+			gap: 1rem;
 		}
 
-		.color-palette {
-			width: 100%;
-		}
-
-		.color-btn {
-			width: 35px;
-			height: 35px;
+		.control-card {
+			padding: 0.85rem;
 		}
 
 		.size-slider {
 			width: 100%;
-			max-width: 200px;
-		}
-
-		.brush-buttons {
-			width: 100%;
-			justify-content: flex-start;
-		}
-
-		.tool-buttons {
-			width: 100%;
-			justify-content: flex-start;
-		}
-
-		.tool-btn {
-			flex: 1;
-			min-width: 80px;
-			font-size: 0.8rem;
-			padding: 0.4rem 0.6rem;
-		}
-	}
-
-	@media (max-width: 480px) {
-		.header h1 {
-			font-size: 1.1rem;
-		}
-
-		.header p {
-			font-size: 0.7rem;
-		}
-
-		.stars {
-			font-size: 0.8rem;
-		}
-
-		.control-section h3 {
-			font-size: 0.8rem;
-		}
-
-		.brush-btn {
-			min-width: 50px;
-			padding: 0.4rem;
-			font-size: 0.7rem;
-		}
-
-		.brush-icon {
-			font-size: 1rem;
-		}
-
-		.brush-name {
-			font-size: 0.6rem;
-		}
-
-		.tool-btn {
-			font-size: 0.75rem;
-			padding: 0.4rem 0.5rem;
-		}
-
-		.color-btn {
-			width: 30px;
-			height: 30px;
-		}
-
-		.sticker-btn {
-			font-size: 1.2rem;
-			padding: 0.2rem;
 		}
 	}
 </style>
